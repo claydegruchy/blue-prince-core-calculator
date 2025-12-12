@@ -1,7 +1,7 @@
 <script lang="ts">
   import Dialog from "./lib/Blocks/Dialog.svelte";
 
-  var coreNumer = "864555";
+  var coreNumer = "86455";
   var valid = false;
   validate();
   calculateCore();
@@ -34,7 +34,7 @@
     var number = String(coreNumer);
 
     // break into groups
-    let groupBreakQuanity = coreNumer.length - 4;
+    let groupBreakQuanity = coreNumer.length - 3;
     console.log({ groupBreakQuanity });
 
     /*
@@ -49,33 +49,39 @@ each step over once the last has finished everything in its range
 
     var numberGroups = [];
 
-    var splitNumber = number.split("");
+    for (const ix of range(3)) {
+      var remaining = number;
+      var acc = [];
+      var cutPosition1 = 1;
+      var cutPosition2 = 1;
+      var cutPosition3 = 1;
 
-    for (const i of range(groupBreakQuanity)) {
-      var s = [...splitNumber];
-      var breakIndex = 0;
-      for (const ix of range(s.length)) {
-        console.log("loop", ix, s[ix], s[ix + 1]);
-        if (ix == s.length - 1) break;
-        var o = [...splitNumber];
+      // we dont need to loop if theres only ever 3 cuts
+      var [removed, rem] = splitAt(remaining, cutPosition1);
+      remaining = rem;
+      acc.push(removed);
 
-        console.log({ groupBreakQuanity });
+      var [removed, rem] = splitAt(remaining, cutPosition2);
+      remaining = rem;
+      acc.push(removed);
 
-        var joinGroup = [];
-        for (const element of range(groupBreakQuanity + 1)) {
-          joinGroup.push();
-        }
-
-        o.splice(breakIndex, 2, s[ix] + s[ix + 1]);
-        numberGroups.push(o);
-        breakIndex++;
-      }
+      var [removed, rem] = splitAt(remaining, cutPosition3);
+      remaining = rem;
+      acc.push(removed);
+      acc.push(remaining);
     }
-    console.log(numberGroups);
+
+    console.log(acc, groupBreakQuanity);
+    // while (cuts > 0 && remaining.length > 1) {}
+    numberGroups.push(acc);
   }
 
   function* range(n) {
     for (let i = 0; i < n; i++) yield i;
+  }
+
+  function splitAt(arr, index) {
+    return [arr.slice(0, index), arr.slice(index)];
   }
 </script>
 
