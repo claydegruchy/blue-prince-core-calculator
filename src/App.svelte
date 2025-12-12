@@ -1,7 +1,7 @@
 <script lang="ts">
   import Dialog from "./lib/Blocks/Dialog.svelte";
 
-  var coreNumer = "";
+  var coreNumer = "1010";
   var valid = false;
   var progressReport = [];
 
@@ -126,11 +126,13 @@ each step over once the last has finished everything in its range
         ["ADD", "MULTIPLY", "SUBTRACT", "DIVIDE"],
         ["ADD", "MULTIPLY", "DIVIDE", "SUBTRACT"],
       ];
-      for (const operations of orderings) {
+      for (const ordering of orderings) {
         var current = 0;
-        for (let index = 0; index < operations.length; index++) {
-          const operation = operations[index];
+        console.log("checking ", ordering, "against", numberGroup);
+        for (let index = 0; index < ordering.length; index++) {
+          const operation = ordering[index];
           const currentNumber = Number(numberGroup[index]);
+
           if (current % 1 !== 0) {
             break;
           }
@@ -149,8 +151,9 @@ each step over once the last has finished everything in its range
               break;
           }
         }
-        if (current % 1 == 0) {
+        if (current % 1 == 0 && current != Infinity) {
           if (Math.abs(current) > 0 && Math.abs(current) < Math.abs(lowest)) {
+            // return console.log({ current }, current % 1, 0 % 1);
             lowest = current;
             console.log("new candidate", lowest);
             progress("Found new candidate number:" + lowest);
@@ -158,12 +161,15 @@ each step over once the last has finished everything in its range
         }
       }
     }
+    if (lowest == Infinity) lowest = 0;
+
     if (String(Math.abs(lowest)).length > 3) {
-      console.log("too large, recursing");
+      console.log("too large, recursing", lowest);
       progress(
         "Smallest number is still too large:" + lowest,
         "Starting subcalcuation..."
       );
+
       lowest = await calculateCore(lowest, depth + 1);
     }
     if (depth < 1) console.log("Complete, result", lowest);
