@@ -1,7 +1,7 @@
 <script lang="ts">
   import Dialog from "./lib/Blocks/Dialog.svelte";
 
-  var coreNumer = "1010";
+  var coreNumer = "";
   var valid = false;
   var progressReport = [];
 
