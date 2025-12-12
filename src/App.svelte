@@ -1,10 +1,12 @@
 <script lang="ts">
   import Dialog from "./lib/Blocks/Dialog.svelte";
 
-  var coreNumer = "86455";
+  var coreNumer = "864555555";
   var valid = false;
+  var progressReport = [];
+
   validate();
-  calculateCore();
+  // calculateCore(coreNumer);
 
   function validate() {
     var number = String(coreNumer);
@@ -21,17 +23,30 @@
     valid = true;
     return valid;
   }
+
   var running = false;
-  async function calculateCore() {
-    console.log("calcuating core", coreNumer);
+
+  function progress(...str) {
+    progressReport = [...progressReport, ...str];
+  }
+
+  async function calculateCore(number, depth = 0) {
+    console.group("calcuating core" + depth);
+    console.log("calcuating core", number, depth);
+    if (depth < 1) {
+      progress(`Starting calcuation for ${number}`);
+    } else {
+      progress(`Starting sub-calcuation for ${number}, depth:` + depth);
+    }
     running = true;
 
     if (!validate()) {
+      progress("Number not valid:" + number);
       console.log("not valid");
       return;
     }
 
-    var number = String(coreNumer);
+    number = String(number);
 
     // break into groups
     let groupBreakQuanity = coreNumer.length - 3;
@@ -49,31 +64,121 @@ each step over once the last has finished everything in its range
 
     var numberGroups = [];
 
-    for (const ix of range(3)) {
+    var cutPosition1 = 1;
+    var cutPosition2 = 1;
+    var cutPosition3 = 1;
+
+    progress("Finding number groupings");
+    console.log("Finding number groupings");
+    var cycles = 0;
+    for (const ix of range(100)) {
+      var loop = ix % 4;
       var remaining = number;
       var acc = [];
-      var cutPosition1 = 1;
-      var cutPosition2 = 1;
-      var cutPosition3 = 1;
+
+      cycles += loop == 0 ? 1 : 0;
+      cutPosition1 = 1 + (loop == 1 ? cycles : 0);
+      cutPosition2 = 1 + (loop == 2 ? cycles : 0);
+      cutPosition3 = 1 + (loop == 3 ? cycles : 0);
 
       // we dont need to loop if theres only ever 3 cuts
       var [removed, rem] = splitAt(remaining, cutPosition1);
       remaining = rem;
+      if (rem == "") continue;
+
       acc.push(removed);
 
       var [removed, rem] = splitAt(remaining, cutPosition2);
       remaining = rem;
+      if (rem == "") continue;
+
       acc.push(removed);
 
       var [removed, rem] = splitAt(remaining, cutPosition3);
       remaining = rem;
+      if (rem == "") continue;
+
       acc.push(removed);
       acc.push(remaining);
+      var packed = JSON.stringify(acc);
+
+      // ix += 1;
+
+      if (!numberGroups.includes(packed)) {
+        numberGroups.push(packed);
+      }
     }
 
-    console.log(acc, groupBreakQuanity);
-    // while (cuts > 0 && remaining.length > 1) {}
-    numberGroups.push(acc);
+    numberGroups = numberGroups.map(JSON.parse);
+    progress(`Found ${numberGroups.length} number group combinations`);
+    console.log("Numebr groupings", numberGroups.length);
+    console.log("Starting ordering calculation");
+    progress(`Starting ordering calculation`);
+
+    var lowest = Infinity;
+    for (const numberGroup of numberGroups) {
+      // yes there are smarter ways to do this but were working with a finte set
+      var orderings = [
+        ["ADD", "SUBTRACT", "DIVIDE", "MULTIPLY"],
+        ["ADD", "SUBTRACT", "MULTIPLY", "DIVIDE"],
+        ["ADD", "DIVIDE", "SUBTRACT", "MULTIPLY"],
+        ["ADD", "DIVIDE", "MULTIPLY", "SUBTRACT"],
+        ["ADD", "MULTIPLY", "SUBTRACT", "DIVIDE"],
+        ["ADD", "MULTIPLY", "DIVIDE", "SUBTRACT"],
+      ];
+      for (const operations of orderings) {
+        var current = 0;
+        for (let index = 0; index < operations.length; index++) {
+          const operation = operations[index];
+          const currentNumber = Number(numberGroup[index]);
+          if (current % 1 !== 0) {
+            break;
+          }
+          switch (operation) {
+            case "ADD":
+              current += currentNumber;
+              break;
+            case "SUBTRACT":
+              current -= currentNumber;
+              break;
+            case "DIVIDE":
+              current /= currentNumber;
+              break;
+            case "MULTIPLY":
+              current *= currentNumber;
+              break;
+          }
+        }
+        if (current % 1 == 0) {
+          if (Math.abs(current) > 0 && Math.abs(current) < Math.abs(lowest)) {
+            lowest = current;
+            console.log("new candidate", lowest);
+            progress("Found new candidate number:" + lowest);
+          }
+        }
+      }
+    }
+    if (String(Math.abs(lowest)).length > 3) {
+      console.log("too large, recursing");
+      progress(
+        "Smallest number is still too large:" + lowest,
+        "Starting subcalcuation..."
+      );
+      lowest = await calculateCore(lowest, depth + 1);
+    }
+    if (depth < 1) console.log("Complete, result", lowest);
+    console.groupEnd();
+
+    return Number(lowest);
+  }
+
+  var input;
+  var result;
+
+  async function findCore() {
+    progressReport = [];
+    input = coreNumer;
+    result = await calculateCore(coreNumer);
   }
 
   function* range(n) {
@@ -124,19 +229,35 @@ each step over once the last has finished everything in its range
   </nav>
 
   <div>
-    <h1>BLue Prince Core Calc</h1>
+    <h3>Blue Prince</h3>
+    <h2><i>Numeric Core Calculator</i></h2>
     <div>
       <input
+        class="blueprint"
         type="string"
         placeholder="Enter core number"
         bind:value={coreNumer}
         on:keyup={validate}
       />
     </div>
-    <button disabled={!valid} on:click={calculateCore}>Start</button>
+    <button disabled={!valid} on:click={findCore}>Start</button>
+
+    {#if result != null}
+      {#if Math.abs(result) < 1}
+        <h3>There is no valid numeric core of {input}</h3>
+      {:else}
+        <h3>Numeric core of {input} is {result}</h3>
+      {/if}
+    {/if}
     {#if running}
-      <div>Calculating core...</div>
-      <div></div>
+      <ol class="reverse">
+        <li>Calculating core...</li>
+        {#each progressReport as log, i}
+          <li>
+            {log}
+          </li>
+        {/each}
+      </ol>
     {/if}
   </div>
 </main>
@@ -194,23 +315,53 @@ each step over once the last has finished everything in its range
     right: 10px;
   }
 
-  .node-list {
+  .reverse {
+    counter-reset: reversed-counter;
+    list-style: none;
+    padding: 0;
+    margin: 0 auto; /* centers the list block */
+    width: max-content; /* shrink to fit content */
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .node {
-    padding: 6px 10px;
-    border: 1px solid #ccc;
+    flex-direction: column-reverse;
   }
 
-  .links-table {
-    width: 100%;
-    border-collapse: collapse;
+  .reverse li {
+    counter-increment: reversed-counter;
+    text-align: left; /* keeps text left-aligned */
   }
 
-  .links-table td {
-    padding: 4px 8px;
-    border-bottom: 1px solid #ddd;
+  .reverse li::before {
+    content: counter(reversed-counter) ". ";
+    margin-right: 0.5em;
   }
+  main {
+    display: inline-block; /* shrink to fit content */
+
+    background-color: rgba(255, 255, 255, 0.2); /* subtle light overlay */
+    padding: 20px;
+    margin: 10px;
+    color: white;
+  }
+
+ input.blueprint {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.1em;
+    color: #ffffff; /* bright text for contrast */
+    background-color: rgba(12, 96, 168, 0.8); /* semi-transparent blueprint blue */
+    border: 2px solid #65b2f4; /* lighter blueprint line color */
+    border-radius: 2px;
+    padding: 0.5em 0.75em;
+    width: 300px; /* wider box */
+    text-align: center; /* center the text inside */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+    letter-spacing: 0.5px;
+    outline: none;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+input.blueprint:focus {
+    border-color: #4992d2; /* slightly darker accent on focus */
+    box-shadow: 0 0 8px rgba(101,178,244,0.5), inset 0 0 5px rgba(0,0,0,0.4);
+}
+
 </style>

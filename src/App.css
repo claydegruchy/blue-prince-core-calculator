@@ -1,5 +1,6 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
+
   line-height: 1.5;
   font-weight: 400;
 
@@ -255,4 +256,44 @@ dialog {
 
   top: 1rem;
   padding: 10px;
+}
+
+
+/* 
+    USER PARAMETERS
+    Enter your own settings here
+*/
+:root {
+  --bp-unit-width: 30px;
+  --bp-units-per-group: 5;
+  --bp-units-line-width: .5px;
+  --bp-groups-line-width: 1px;
+  --bp-background-color: #0c60a8;
+  --bp-groups-bounds-color: #65b2f4;
+  --bp-units-bounds-color: #4992d2;
+}
+
+/* DO NOT EDIT BELOW */
+:root {
+  --bp-group: calc(var(--bp-unit-width) * var(--bp-units-per-group));
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bp-background-color);
+  background-image: linear-gradient(var(--bp-groups-bounds-color) var(--bp-groups-line-width),
+      transparent var(--bp-groups-line-width)),
+    linear-gradient(90deg,
+      var(--bp-groups-bounds-color) var(--bp-groups-line-width),
+      transparent var(--bp-groups-line-width)),
+    linear-gradient(var(--bp-units-bounds-color) var(--bp-units-line-width),
+      transparent var(--bp-units-line-width)),
+    linear-gradient(90deg,
+      var(--bp-units-bounds-color) var(--bp-units-line-width),
+      transparent var(--bp-units-line-width));
+  background-size: calc(var(--bp-units-per-group) * var(--bp-unit-width)) calc(var(--bp-units-per-group) * var(--bp-unit-width)),
+    calc(var(--bp-units-per-group) * var(--bp-unit-width)) calc(var(--bp-units-per-group) * var(--bp-unit-width)),
+    var(--bp-unit-width) var(--bp-unit-width),
+    var(--bp-unit-width) var(--bp-unit-width);
 }
