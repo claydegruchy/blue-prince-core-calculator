@@ -1,7 +1,7 @@
 <script lang="ts">
   import Dialog from "./lib/Blocks/Dialog.svelte";
 
-  var coreNumer = "86455";
+  var coreNumer = "864555";
   var valid = false;
   validate();
   calculateCore();
@@ -23,7 +23,7 @@
   }
   var running = false;
   async function calculateCore() {
-    console.log("calcuating core");
+    console.log("calcuating core", coreNumer);
     running = true;
 
     if (!validate()) {
@@ -35,29 +35,47 @@
 
     // break into groups
     let groupBreakQuanity = coreNumer.length - 4;
-    console.log(groupBreakQuanity);
+    console.log({ groupBreakQuanity });
+
+    /*
+
+you always get 3 cuts, as you must end up with 4 parts
+so it makes more sense to take the full number and apply the cuts 
+3 cut heads
+each step over once the last has finished everything in its range
+
+
+*/
 
     var numberGroups = [];
 
     var splitNumber = number.split("");
-    for (let index = 0; index < groupBreakQuanity; index++) {
-      // console.log(splitNumber);
 
-      var inst = splitNumber;
+    for (const i of range(groupBreakQuanity)) {
+      var s = [...splitNumber];
+      var breakIndex = 0;
+      for (const ix of range(s.length)) {
+        console.log("loop", ix, s[ix], s[ix + 1]);
+        if (ix == s.length - 1) break;
+        var o = [...splitNumber];
 
-      var i = 0;
-      var last = inst.shift();
+        console.log({ groupBreakQuanity });
 
-      for (const num of inst) {
+        var joinGroup = [];
+        for (const element of range(groupBreakQuanity + 1)) {
+          joinGroup.push();
+        }
 
-        
-        
-        // console.log(num, last);
-        numberGroups.push([num, last].join(""));
-        last = num;
+        o.splice(breakIndex, 2, s[ix] + s[ix + 1]);
+        numberGroups.push(o);
+        breakIndex++;
       }
     }
     console.log(numberGroups);
+  }
+
+  function* range(n) {
+    for (let i = 0; i < n; i++) yield i;
   }
 </script>
 
