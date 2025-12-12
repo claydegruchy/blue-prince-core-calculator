@@ -1,7 +1,7 @@
 <script lang="ts">
   import Dialog from "./lib/Blocks/Dialog.svelte";
 
-  var coreNumer = "864555555";
+  var coreNumer = "";
   var valid = false;
   var progressReport = [];
 
@@ -343,25 +343,38 @@ each step over once the last has finished everything in its range
     color: white;
   }
 
- input.blueprint {
-    font-family: 'Courier New', Courier, monospace;
+  input.blueprint {
+    font-family: "Courier New", Courier, monospace;
     font-size: 1.1em;
     color: #ffffff; /* bright text for contrast */
-    background-color: rgba(12, 96, 168, 0.8); /* semi-transparent blueprint blue */
+    background-color: rgba(
+      12,
+      96,
+      168,
+      0.8
+    ); /* semi-transparent blueprint blue */
     border: 2px solid #65b2f4; /* lighter blueprint line color */
     border-radius: 2px;
     padding: 0.5em 0.75em;
     width: 300px; /* wider box */
     text-align: center; /* center the text inside */
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
     letter-spacing: 0.5px;
     outline: none;
-    transition: box-shadow 0.2s, border-color 0.2s;
-}
+    transition:
+      box-shadow 0.2s,
+      border-color 0.2s;
+  }
 
-input.blueprint:focus {
+  input.blueprint:focus {
     border-color: #4992d2; /* slightly darker accent on focus */
-    box-shadow: 0 0 8px rgba(101,178,244,0.5), inset 0 0 5px rgba(0,0,0,0.4);
-}
-
+    box-shadow:
+      0 0 8px rgba(101, 178, 244, 0.5),
+      inset 0 0 5px rgba(0, 0, 0, 0.4);
+  }
+  input.blueprint::placeholder {
+    color: #a0d0ff; /* brighter, more prominent */
+    opacity: 1; /* ensure full visibility */
+    font-weight: bold;
+  }
 </style>
