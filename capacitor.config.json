@@ -1,0 +1,6 @@
+{
+  "appId": "com.blue-prince-core-calculator.app",
+  "appName": "blue-prince-core-calculator",
+  "webDir": "dist",
+  "plugins": {}
+}
